@@ -238,26 +238,6 @@ int POINTCompare(const void *v1, const void *v2) {
     }
 }
 
-int main() {
-    TRIANGLE *v = NULL;
-    POINT *p;
-    int nv = 100;
-    int X, Y;
-    int i;
-    int ntri = 0;
-
-    v = new TRIANGLE[3 * nv];
-    qsort(p, nv, sizeof(POINT), POINTCompare);
-    Triangulate(nv, p, v, ntri);
-    outputtriangle(nv, p, v, ntri); // use this fonction to trace the mesh (via
-    delete[]p;// OpenGL, DirectX, ...)
-    delete[]v;
-    p = NULL;
-    v = NULL;
-    system("pause"); // remove under Linux
-    return 0;
-}
-
 
 
 

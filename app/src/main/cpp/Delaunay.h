@@ -21,7 +21,7 @@ struct POINT{
 };
 
 int POINTCompare(const void *v1, const void *v2);
-int Triangulate(int nv, POINT point[], TRIANGLE v[], int &ntri);
+int Triangulate(int pNum, POINT point[], TRIANGLE triangle[], int &tNum);
 int CircumCircle(double, double, double, double, double, double, double,
                  double, double &, double &, double &);
 

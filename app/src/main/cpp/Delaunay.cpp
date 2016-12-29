@@ -14,17 +14,19 @@ int CircumCircle(double xp, double yp, double x1, double y1, double x2,
     double m1, m2, mx1, mx2, my1, my2;
     double dx, dy, rsqr, drsqr;
 
+    double fabsy1y2 = abs(y1 - y2);
+    double fabsy2y3 = abs(y2 - y3);
     /* Check for coincident points */
-    if (abs(y1 - y2) < EPSILON && abs(y2 - y3) < EPSILON) {
+    if (fabsy1y2 < EPSILON && fabsy2y3 < EPSILON) {
         return (false);
     }
-    if (abs(y2 - y1) < EPSILON) {
+    if (fabsy1y2 < EPSILON) {
         m2 = -(x3 - x2) / (y3 - y2);
         mx2 = (x2 + x3) / 2.0;
         my2 = (y2 + y3) / 2.0;
         xc = (x2 + x1) / 2.0;
         yc = m2 * (xc - mx2) + my2;
-    } else if (abs(y3 - y2) < EPSILON) {
+    } else if (fabsy2y3 < EPSILON) {
         m1 = -(x2 - x1) / (y2 - y1);
         mx1 = (x1 + x2) / 2.0;
         my1 = (y1 + y2) / 2.0;
@@ -38,56 +40,27 @@ int CircumCircle(double xp, double yp, double x1, double y1, double x2,
         my1 = (y1 + y2) / 2.0;
         my2 = (y2 + y3) / 2.0;
         xc = (m1 * mx1 - m2 * mx2 + my2 - my1) / (m1 - m2);
-        yc = m1 * (xc - mx1) + my1;
+        yc = (fabsy1y2 > fabsy2y3) ? m1 * (xc - mx1) + my1 : m2 * (xc - mx2) + my2;
     }
     dx = x2 - xc;
     dy = y2 - yc;
     rsqr = dx * dx + dy * dy;
-    r = sqrt(rsqr);
+    r = (int) sqrt(rsqr);
     dx = xp - xc;
     dy = yp - yc;
     drsqr = dx * dx + dy * dy;
     return drsqr <= rsqr;
 }
-///////////////////////////////////////////////////////////////////////////////
-// Triangulate() :
-//   Triangulation subroutine
-//   Takes as input NV vertices in array point
-//   Returned is a list of ntri triangular faces in the array v
-//   These triangles are arranged in a consistent clockwise order.
-//   The triangle array 'v' should be malloced to 3 * nv
-//   The vertex array point must be big enough to hold 3 more points
-//   The vertex array must be sorted in increasing x values say
-//
-//   qsort(p,nv,sizeof(XYZ),XYZCompare);
-///////////////////////////////////////////////////////////////////////////////
 
-int Triangulate(int nv, POINT point[], TRIANGLE v[], int &ntri) {
-    int *complete = NULL;
-    EDGE *edges = NULL;
-    EDGE *p_EdgeTemp;
-    int nedge = 0;
-    int trimax, emax = 200;
-    int inside;
-    int i, j, k;
-    double xp, yp, x1, y1, x2, y2, x3, y3, xc, yc, r;
+void SuperTriangle(int pointNum, POINT point[], POINT superTriagle[]) {
     double xmin, xmax, ymin, ymax, xmid, ymid;
     double dx, dy, dmax;
 
-    /* Allocate memory for the completeness list, flag for each triangle */
-    trimax = 4 * nv;
-    complete = new int[trimax];
-    /* Allocate memory for the edge list */
-    edges = new EDGE[emax];
-    /*
-     Find the maximum and minimum vertex bounds.
-     This is to allow calculation of the bounding triangle
-    */
     xmin = point[0].x;
     ymin = point[0].y;
     xmax = xmin;
     ymax = ymin;
-    for (i = 1; i < nv; i++) {
+    for (int i = 1; i < pointNum; i++) {
         if (point[i].x < xmin) xmin = point[i].x;
         if (point[i].x > xmax) xmax = point[i].x;
         if (point[i].y < ymin) ymin = point[i].y;
@@ -105,21 +78,56 @@ int Triangulate(int nv, POINT point[], TRIANGLE v[], int &ntri) {
      vertex list. The supertriangle is the first triangle in
      the triangle list.
     */
-    point[nv + 0].x = xmid - 20 * dmax;
-    point[nv + 0].y = ymid - dmax;
-    point[nv + 1].x = xmid;
-    point[nv + 1].y = ymid + 20 * dmax;
-    point[nv + 2].x = xmid + 20 * dmax;
-    point[nv + 2].y = ymid - dmax;
-    v[0].p1 = nv;
-    v[0].p2 = nv + 1;
-    v[0].p3 = nv + 2;
+    superTriagle[0].x = xmid - 20 * dmax;
+    superTriagle[0].y = ymid - dmax;
+    superTriagle[1].x = xmid;
+    superTriagle[1].y = ymid + 20 * dmax;
+    superTriagle[2].x = xmid + 20 * dmax;
+    superTriagle[2].y = ymid - dmax;
+}
+///////////////////////////////////////////////////////////////////////////////
+// Triangulate() :
+//   Triangulation subroutine
+//   Takes as input NV vertices in array point
+//   Returned is a list of ntri triangular faces in the array v
+//   These triangles are arranged in a consistent clockwise order.
+//   The triangle array 'v' should be malloced to 3 * nv
+//   The vertex array point must be big enough to hold 3 more points
+//   The vertex array must be sorted in increasing x values say
+//
+//   qsort(p,nv,sizeof(XYZ),XYZCompare);
+///////////////////////////////////////////////////////////////////////////////
+
+int Triangulate(int pNum, POINT point[], TRIANGLE triangle[], int &tNum) {
+    int *complete = NULL;
+    EDGE *edges = NULL;
+    EDGE *p_EdgeTemp;
+    int nedge = 0;
+    int trimax, emax = 200;
+    int inside;
+    int i, j, k;
+    double xp, yp, x1, y1, x2, y2, x3, y3, xc, yc, r;
+
+    /* Allocate memory for the completeness list, flag for each triangle */
+    trimax = 4 * pNum;
+    complete = new int[trimax];
+    /* Allocate memory for the edge list */
+    edges = new EDGE[emax];
+    /*
+     Find the maximum and minimum vertex bounds.
+     This is to allow calculation of the bounding triangle
+    */
+    SuperTriangle(pNum, point, &point[pNum]);
+
+    triangle[0].p1 = pNum;
+    triangle[0].p2 = pNum + 1;
+    triangle[0].p3 = pNum + 2;
     complete[0] = false;
-    ntri = 1;
+    tNum = 1;
     /*
      Include each point one at a time into the existing mesh
     */
-    for (i = 0; i < nv; i++) {
+    for (i = 0; i < pNum; i++) {
         xp = point[i].x;
         yp = point[i].y;
         nedge = 0;
@@ -129,15 +137,15 @@ int Triangulate(int nv, POINT point[], TRIANGLE v[], int &ntri) {
          three edges of that triangle are added to the edge buffer
          and that triangle is removed.
         */
-        for (j = 0; j < ntri; j++) {
+        for (j = 0; j < tNum; j++) {
             if (complete[j])
                 continue;
-            x1 = point[v[j].p1].x;
-            y1 = point[v[j].p1].y;
-            x2 = point[v[j].p2].x;
-            y2 = point[v[j].p2].y;
-            x3 = point[v[j].p3].x;
-            y3 = point[v[j].p3].y;
+            x1 = point[triangle[j].p1].x;
+            y1 = point[triangle[j].p1].y;
+            x2 = point[triangle[j].p2].x;
+            y2 = point[triangle[j].p2].y;
+            x3 = point[triangle[j].p3].x;
+            y3 = point[triangle[j].p3].y;
             inside = CircumCircle(xp, yp, x1, y1, x2, y2, x3, y3, xc, yc, r);
             if (xc + r < xp)
                 // Suggested
@@ -148,22 +156,22 @@ int Triangulate(int nv, POINT point[], TRIANGLE v[], int &ntri) {
                 if (nedge + 3 >= emax) {
                     emax += 100;
                     p_EdgeTemp = new EDGE[emax];
-                    for (int i = 0; i < nedge; i++) { // Fix by John Bowman
-                        p_EdgeTemp[i] = edges[i];
+                    for (int li = 0; li < nedge; li++) { // Fix by John Bowman
+                        p_EdgeTemp[li] = edges[li];
                     }
-                    delete[]edges;
+                    delete[] edges;
                     edges = p_EdgeTemp;
                 }
-                edges[nedge + 0].p1 = v[j].p1;
-                edges[nedge + 0].p2 = v[j].p2;
-                edges[nedge + 1].p1 = v[j].p2;
-                edges[nedge + 1].p2 = v[j].p3;
-                edges[nedge + 2].p1 = v[j].p3;
-                edges[nedge + 2].p2 = v[j].p1;
+                edges[nedge + 0].p1 = triangle[j].p1;
+                edges[nedge + 0].p2 = triangle[j].p2;
+                edges[nedge + 1].p1 = triangle[j].p2;
+                edges[nedge + 1].p2 = triangle[j].p3;
+                edges[nedge + 2].p1 = triangle[j].p3;
+                edges[nedge + 2].p2 = triangle[j].p1;
                 nedge += 3;
-                v[j] = v[ntri - 1];
-                complete[j] = complete[ntri - 1];
-                ntri--;
+                triangle[j] = triangle[tNum - 1];
+                complete[j] = complete[tNum - 1];
+                tNum--;
                 j--;
             }
         }
@@ -197,21 +205,21 @@ int Triangulate(int nv, POINT point[], TRIANGLE v[], int &ntri) {
         for (j = 0; j < nedge; j++) {
             if (edges[j].p1 < 0 || edges[j].p2 < 0)
                 continue;
-            v[ntri].p1 = edges[j].p1;
-            v[ntri].p2 = edges[j].p2;
-            v[ntri].p3 = i;
-            complete[ntri] = false;
-            ntri++;
+            triangle[tNum].p1 = edges[j].p1;
+            triangle[tNum].p2 = edges[j].p2;
+            triangle[tNum].p3 = i;
+            complete[tNum] = false;
+            tNum++;
         }
     }
     /*
      Remove triangles with supertriangle vertices
      These are triangles which have a vertex number greater than nv
     */
-    for (i = 0; i < ntri; i++) {
-        if (v[i].p1 >= nv || v[i].p2 >= nv || v[i].p3 >= nv) {
-            v[i] = v[ntri - 1];
-            ntri--;
+    for (i = 0; i < tNum; i++) {
+        if (triangle[i].p1 >= pNum || triangle[i].p2 >= pNum || triangle[i].p3 >= pNum) {
+            triangle[i] = triangle[tNum - 1];
+            tNum--;
             i--;
         }
     }
@@ -220,9 +228,6 @@ int Triangulate(int nv, POINT point[], TRIANGLE v[], int &ntri) {
     return 0;
 }
 
-int random(int n) {
-    return rand() % n;
-}
 
 int POINTCompare(const void *v1, const void *v2) {
     POINT *p1, *p2;

@@ -12,8 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
         pointText = (TextView) findViewById(R.id.point_text);
         accuracyText = (TextView) findViewById(R.id.accuracy_text);
-        sourceBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.test)).getBitmap();
+        sourceBitmap = ((BitmapDrawable) getResources().getDrawable(R.mipmap.ic_launcher)).getBitmap();
 
         pointText.setText(String.valueOf(pointCount));
         accuracyText.setText(String.valueOf(accuracy));
@@ -77,8 +76,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void nativeSobel(View view) {
-        int[] pixels = Sobel.getImage(sourceBitmap, 40);
-        Bitmap copy = Bitmap.createBitmap(pixels, sourceBitmap.getWidth(), sourceBitmap.getHeight
+        int width = sourceBitmap.getWidth();
+        int height = sourceBitmap.getHeight();
+        int[] pixels = new int[width * height];
+        sourceBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        int[] sobelPoints = LowPoly.sobel(pixels, width, height, 0);
+
+        int[] sobelPixels = new int[width * height];
+        Arrays.fill(sobelPixels, Color.BLACK);
+        for (int i = 0; i < sobelPoints.length; i+=2) {
+            sobelPixels[sobelPoints[i] + sobelPoints[i+1]*width] = Color.WHITE;
+        }
+
+        Bitmap copy = Bitmap.createBitmap(sobelPixels, sourceBitmap.getWidth(), sourceBitmap.getHeight
                 (), Bitmap.Config.ARGB_8888);
         ImageView sobelImage = (ImageView) findViewById(R.id.sobel_image);
         sobelImage.setImageBitmap(copy);
@@ -88,26 +98,10 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap lowPoly(Bitmap bitmap, int pointCount, int accuracy, boolean fill) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        List<int[]> collectors = Sobel.getSobelPixels(bitmap, 40);
-        ArrayList<int[]> particles = new ArrayList<>();
 
-        for (int i = 0; i < pointCount; i++) {
-            particles.add(new int[]{(int) (Math.random() * width), (int) (Math.random() * height)});
-        }
-
-        int len = collectors.size() / accuracy;
-        for (int i = 0; i < len; i++) {
-            int random = (int) (Math.random() * collectors.size());
-            particles.add(collectors.get(random));
-            collectors.remove(random);
-        }
-
-        particles.add(new int[]{0, 0});
-        particles.add(new int[]{0, height});
-        particles.add(new int[]{width, 0});
-        particles.add(new int[]{width, height});
-
-        List<Integer> triangles = Delaunay.triangulate(particles);
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        int[] triangles = LowPoly.lowPoly(pixels, width, height, accuracy, pointCount);
 
         int x1, x2, x3, y1, y2, y3, cx, cy;
 
@@ -124,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawColor(Color.WHITE);
         Path path = new Path();
 
-        for (int i = 0; i < triangles.size(); i += 3) {
-            x1 = particles.get(triangles.get(i))[0];
-            x2 = particles.get(triangles.get(i + 1))[0];
-            x3 = particles.get(triangles.get(i + 2))[0];
-            y1 = particles.get(triangles.get(i))[1];
-            y2 = particles.get(triangles.get(i + 1))[1];
-            y3 = particles.get(triangles.get(i + 2))[1];
+        for (int i = 0; i < triangles.length; i += 6) {
+            x1 = triangles[i];
+            y1 = triangles[i +1];
+            x2 = triangles[i +2];
+            y2 = triangles[i +3];
+            x3 = triangles[i +4];
+            y3 = triangles[i +5];
 
             cx = (x1 + x2 + x3) / 3;
             cy = (y1 + y2 + y3) / 3;

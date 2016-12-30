@@ -228,7 +228,7 @@ int Triangulate(int pNum, POINT point[], TRIANGLE triangle[], int &tNum) {
 }
 
 
-int POINTCompare(const void *v1, const void *v2) {
+int PointCompare(const void *v1, const void *v2) {
     POINT *p1, *p2;
 
     p1 = (POINT *) v1;

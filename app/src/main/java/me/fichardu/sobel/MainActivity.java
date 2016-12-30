@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         int height = sourceBitmap.getHeight();
         int[] pixels = new int[width * height];
         sourceBitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        int[] sobelPoints = LowPoly.sobel(pixels, width, height, 0);
+        int[] sobelPoints = LowPoly.sobel(pixels, width, height);
 
         int[] sobelPixels = new int[width * height];
         Arrays.fill(sobelPixels, Color.BLACK);

@@ -12,7 +12,7 @@ public class LowPoly {
 
     public static native int[] lowPoly(int[] pixels, int width, int height, int accuracy, int pointCount);
 
-    public static native int[] sobel(int[] pixels, int width, int height, int pointCount);
+    public static native int[] sobel(int[] pixels, int width, int height);
 
     public static native int[] delaunay(int width, int height, int pointCount);
 

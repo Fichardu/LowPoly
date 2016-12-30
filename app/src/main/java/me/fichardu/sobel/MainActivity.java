@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         pointText = (TextView) findViewById(R.id.point_text);
         accuracyText = (TextView) findViewById(R.id.accuracy_text);
-        sourceBitmap = ((BitmapDrawable) getResources().getDrawable(R.mipmap.ic_launcher)).getBitmap();
+        sourceBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.test)).getBitmap();
 
         pointText.setText(String.valueOf(pointCount));
         accuracyText.setText(String.valueOf(accuracy));
@@ -63,13 +64,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void fill(View view) {
-        Bitmap copy = lowPoly(sourceBitmap, pointCount, accuracy, true);
+        Bitmap copy = nativeLowPoly(sourceBitmap, pointCount, accuracy, true);
         ImageView sobelImage = (ImageView) findViewById(R.id.sobel_image);
         sobelImage.setImageBitmap(copy);
     }
 
     public void stroken(View view) {
-        Bitmap copy = lowPoly(sourceBitmap, pointCount, accuracy, false);
+        Bitmap copy = nativeLowPoly(sourceBitmap, pointCount, accuracy, false);
         ImageView sobelImage = (ImageView) findViewById(R.id.sobel_image);
         sobelImage.setImageBitmap(copy);
 
@@ -94,8 +95,45 @@ public class MainActivity extends AppCompatActivity {
         sobelImage.setImageBitmap(copy);
     }
 
+    public void nativeDelaunay(View view) {
+        int width = sourceBitmap.getWidth();
+        int height = sourceBitmap.getHeight();
 
-    private Bitmap lowPoly(Bitmap bitmap, int pointCount, int accuracy, boolean fill) {
+        int[] triangles = LowPoly.delaunay(width, height, pointCount);
+
+        int x1, x2, x3, y1, y2, y3;
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+
+        Bitmap copy = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(copy);
+        canvas.drawColor(Color.WHITE);
+        Path path = new Path();
+
+        for (int i = 0; i < triangles.length; i += 6) {
+            x1 = triangles[i];
+            y1 = triangles[i +1];
+            x2 = triangles[i +2];
+            y2 = triangles[i +3];
+            x3 = triangles[i +4];
+            y3 = triangles[i +5];
+
+            path.reset();
+            path.moveTo(x1, y1);
+            path.lineTo(x2, y2);
+            path.lineTo(x3, y3);
+            path.close();
+            canvas.drawPath(path, paint);
+        }
+
+        ImageView sobelImage = (ImageView) findViewById(R.id.sobel_image);
+        sobelImage.setImageBitmap(copy);
+    }
+
+
+    private Bitmap nativeLowPoly(Bitmap bitmap, int pointCount, int accuracy, boolean fill) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
@@ -113,8 +151,8 @@ public class MainActivity extends AppCompatActivity {
             paint.setStyle(Paint.Style.STROKE);
         }
 
-        Bitmap lowpoly = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(lowpoly);
+        Bitmap lowPoly = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(lowPoly);
         canvas.drawColor(Color.WHITE);
         Path path = new Path();
 
@@ -139,7 +177,20 @@ public class MainActivity extends AppCompatActivity {
             canvas.drawPath(path, paint);
         }
 
-        return lowpoly;
+        return lowPoly;
+    }
+
+    private void sobel(View view) {
+        int[] pixels = Sobel.getImage(sourceBitmap, 40);
+        Bitmap copy = Bitmap.createBitmap(pixels, sourceBitmap.getWidth(), sourceBitmap.getHeight
+                (), Bitmap.Config.ARGB_8888);
+        ImageView sobelImage = (ImageView) findViewById(R.id.sobel_image);
+        sobelImage.setImageBitmap(copy);
+    }
+
+    private void lowPoly(View view) {
+        List<int[]> pixels = Sobel.getSobelPixels(sourceBitmap, 40);
+
     }
 
 }

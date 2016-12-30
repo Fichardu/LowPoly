@@ -14,6 +14,6 @@ public class LowPoly {
 
     public static native int[] sobel(int[] pixels, int width, int height, int pointCount);
 
-    public native static String stringFromJNI();
+    public static native int[] delaunay(int width, int height, int pointCount);
 
 }

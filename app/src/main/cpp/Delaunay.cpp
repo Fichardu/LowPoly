@@ -53,8 +53,8 @@ int CircumCircle(double xp, double yp, double x1, double y1, double x2,
 }
 
 void SuperTriangle(int pointNum, POINT point[], POINT superTriagle[]) {
-    double xmin, xmax, ymin, ymax, xmid, ymid;
-    double dx, dy, dmax;
+    int xmin, xmax, ymin, ymax, xmid, ymid;
+    int dx, dy, dmax;
 
     xmin = point[0].x;
     ymin = point[0].y;
@@ -69,8 +69,8 @@ void SuperTriangle(int pointNum, POINT point[], POINT superTriagle[]) {
     dx = xmax - xmin;
     dy = ymax - ymin;
     dmax = (dx > dy) ? dx : dy;
-    xmid = (xmax + xmin) / 2.0;
-    ymid = (ymax + ymin) / 2.0;
+    xmid = (xmax + xmin) / 2;
+    ymid = (ymax + ymin) / 2;
     /*
      Set up the supertriangle
      his is a triangle which encompasses all the sample points.
@@ -101,7 +101,6 @@ void SuperTriangle(int pointNum, POINT point[], POINT superTriagle[]) {
 int Triangulate(int pNum, POINT point[], TRIANGLE triangle[], int &tNum) {
     int *complete = NULL;
     EDGE *edges = NULL;
-    EDGE *p_EdgeTemp;
     int nedge = 0;
     int trimax, emax = 200;
     int inside;
@@ -155,7 +154,7 @@ int Triangulate(int pNum, POINT point[], TRIANGLE triangle[], int &tNum) {
                 /* Check that we haven't exceeded the edge list size */
                 if (nedge + 3 >= emax) {
                     emax += 100;
-                    p_EdgeTemp = new EDGE[emax];
+                    EDGE* p_EdgeTemp = new EDGE[emax];
                     for (int li = 0; li < nedge; li++) { // Fix by John Bowman
                         p_EdgeTemp[li] = edges[li];
                     }

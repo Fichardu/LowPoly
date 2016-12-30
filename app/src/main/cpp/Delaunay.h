@@ -17,7 +17,7 @@ struct EDGE{
 };
 
 struct POINT{
-  double x, y;
+  int x, y;
 };
 
 int POINTCompare(const void *v1, const void *v2);

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Sobel.iml" filepath="$PROJECT_DIR$/Sobel.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lowpoly/lowpoly.iml" filepath="$PROJECT_DIR$/lowpoly/lowpoly.iml" />
     </modules>
   </component>
 </project>

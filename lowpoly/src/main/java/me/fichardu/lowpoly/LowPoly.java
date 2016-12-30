@@ -1,4 +1,4 @@
-package me.fichardu.sobel;
+package me.fichardu.lowpoly;
 
 /**
  * Created by xf on 2016/12/29
@@ -7,7 +7,7 @@ package me.fichardu.sobel;
 public class LowPoly {
 
     static {
-        System.loadLibrary("native-lib");
+        System.loadLibrary("lowPoly");
     }
 
     public static native int[] lowPoly(int[] pixels, int width, int height, int accuracy, int pointCount);

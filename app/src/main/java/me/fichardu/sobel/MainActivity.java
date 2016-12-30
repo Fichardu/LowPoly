@@ -13,7 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Arrays;
-import java.util.List;
+
+import me.fichardu.lowpoly.LowPoly;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -179,18 +180,4 @@ public class MainActivity extends AppCompatActivity {
 
         return lowPoly;
     }
-
-    private void sobel(View view) {
-        int[] pixels = Sobel.getImage(sourceBitmap, 40);
-        Bitmap copy = Bitmap.createBitmap(pixels, sourceBitmap.getWidth(), sourceBitmap.getHeight
-                (), Bitmap.Config.ARGB_8888);
-        ImageView sobelImage = (ImageView) findViewById(R.id.sobel_image);
-        sobelImage.setImageBitmap(copy);
-    }
-
-    private void lowPoly(View view) {
-        List<int[]> pixels = Sobel.getSobelPixels(sourceBitmap, 40);
-
-    }
-
 }

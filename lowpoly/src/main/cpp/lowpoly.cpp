@@ -14,7 +14,7 @@ int random(int n){
 
 extern "C"
 JNIEXPORT jintArray JNICALL
-Java_me_fichardu_sobel_LowPoly_delaunay(JNIEnv *env, jclass type, jint width,
+Java_me_fichardu_lowpoly_LowPoly_delaunay(JNIEnv *env, jclass type, jint width,
                                         jint height, jint pointCount) {
     randomize();
     POINT* points = new POINT[pointCount + 3];
@@ -57,7 +57,7 @@ Java_me_fichardu_sobel_LowPoly_delaunay(JNIEnv *env, jclass type, jint width,
 
 extern "C"
 JNIEXPORT jintArray JNICALL
-Java_me_fichardu_sobel_LowPoly_sobel(JNIEnv *env, jclass type, jintArray pixels_, jint width,
+Java_me_fichardu_lowpoly_LowPoly_sobel(JNIEnv *env, jclass type, jintArray pixels_, jint width,
                                      jint height) {
     jint *pixels = env->GetIntArrayElements(pixels_, NULL);
 
@@ -93,7 +93,7 @@ Java_me_fichardu_sobel_LowPoly_sobel(JNIEnv *env, jclass type, jintArray pixels_
 
 extern "C"
 jintArray
-Java_me_fichardu_sobel_LowPoly_lowPoly(JNIEnv *env, jclass type, jintArray pixels_, jint width,
+Java_me_fichardu_lowpoly_LowPoly_lowPoly(JNIEnv *env, jclass type, jintArray pixels_, jint width,
                                        jint height, jint accuracy, jint randomCount) {
     jint *pixels = env->GetIntArrayElements(pixels_, NULL);
 

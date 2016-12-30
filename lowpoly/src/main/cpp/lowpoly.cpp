@@ -17,7 +17,7 @@ JNIEXPORT jintArray JNICALL
 Java_me_fichardu_lowpoly_LowPoly_delaunay(JNIEnv *env, jclass type, jint width,
                                         jint height, jint pointCount) {
     randomize();
-    POINT* points = new POINT[pointCount + 3];
+    POINT* points = new POINT[pointCount + 7];
 
     for (int i = 0; i < pointCount; ++i) {
         points[i].x = random(width);
@@ -126,6 +126,7 @@ Java_me_fichardu_lowpoly_LowPoly_lowPoly(JNIEnv *env, jclass type, jintArray pix
     for (int i = 0; i < randomCount; ++i) {
         accPixels[accLength + i] = random(length);
     }
+
     // add 4 corner points
     accPixels[pointCount - 4] = 0;
     accPixels[pointCount - 3] = width - 1;
@@ -134,7 +135,7 @@ Java_me_fichardu_lowpoly_LowPoly_lowPoly(JNIEnv *env, jclass type, jintArray pix
 
     POINT* points = new POINT[pointCount + 3];
     // convert array index to point structure
-    for (int i = 0; i < accLength; ++i) {
+    for (int i = 0; i < pointCount; ++i) {
         points[i].x = accPixels[i] % width;
         points[i].y = accPixels[i] / width;
     }

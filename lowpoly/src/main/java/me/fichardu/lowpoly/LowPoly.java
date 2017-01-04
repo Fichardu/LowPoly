@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 Fichardu
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package me.fichardu.lowpoly;
 
 import android.graphics.Bitmap;
@@ -9,20 +25,50 @@ import android.graphics.Path;
 /**
  * Created by xf on 2016/12/29
  */
-
 public class LowPoly {
 
     static {
         System.loadLibrary("lowPoly");
     }
 
+    /**
+     * Generate bitmap`s LowPoly triangles.
+     *
+     * @param pixels Bitmap pixel array, eg. Bitmap.getPixels().
+     * @param width Bitmap width.
+     * @param height Bitmap height.
+     * @param accuracy Sample the sobel pixels. Bigger this value is, less triangles will be get.
+     * @param pointCount Random point added between sobel pixels.
+     * @return Triangles array, formatted in this style: [(x1, y1, x2, y2, x3, y3), (...), ...]
+     */
     public static native int[] lowPoly(int[] pixels, int width, int height, int accuracy, int pointCount);
 
+    /**
+     * Find Sobel pixels.
+     * @param pixels Bitmap pixel array, eg. Bitmap.getPixels().
+     * @param width Bitmap width.
+     * @param height Bitmap height.
+     * @return Pixel coordinate array, formatted in this style: [(x1, y1), (x2, y2), ...]
+     */
     public static native int[] sobel(int[] pixels, int width, int height);
 
+    /**
+     * A test function that can generate random point Delaunay Triangles.
+     * @param width The x axis length
+     * @param height The y axis length
+     * @param pointCount point count
+     * @return Triangles array, formatted in this style: [(x1, y1, x2, y2, x3, y3), (...), ...]
+     */
     public static native int[] delaunay(int width, int height, int pointCount);
 
 
+    /**
+     * Convert a bitmap to LowPoly Style.
+     * @param bitmap Original bitmap.
+     * @param accuracy Bigger this value is, less triangles will be get.
+     * @param randomPointCount Random point added between sobel pixels.
+     * @return
+     */
     public static Bitmap getLowPolyBitmap(Bitmap bitmap, int accuracy, int randomPointCount) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();

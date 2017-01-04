@@ -16,7 +16,7 @@ Two ways:
 
 ## Shot
 
-![](./screenshots/sample.gif)
+<img src="./screenshots/sample.gif" width="360">
 
 ## Licence
 

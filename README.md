@@ -1,6 +1,14 @@
 # LowPoly
 
-LowPoly on Android. Convert a picture into LowPoly style.
+LowPoly on Android. Convert a picture into LowPoly style. It has two steps to finish this process. First use Sobel operator to get the edge on image, then use Delaunay Triangulation to generate triangles from these edge points and some random points. Finally fill color on these triangles, we will get the LowPoly style picture.
+
+## Download
+
+```
+dependencies {
+    compile 'me.fichardu.lowpoly:lowpoly:1.0.0'
+}
+```
 
 ## Usage
 

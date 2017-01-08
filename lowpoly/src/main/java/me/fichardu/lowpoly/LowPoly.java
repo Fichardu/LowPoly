@@ -61,6 +61,14 @@ public class LowPoly {
      */
     public static native int[] delaunay(int width, int height, int pointCount);
 
+    /**
+     * Convert a bitmap to LowPoly Style. User accuracy 100 and randomPoint 40.
+     *
+     * @see #getLowPolyBitmap(Bitmap, int, int)
+     */
+    public static Bitmap getLowPolyBitmap(Bitmap source) {
+        return getLowPolyBitmap(source, 100, 40);
+    }
 
     /**
      * Convert a bitmap to LowPoly Style.
@@ -79,6 +87,7 @@ public class LowPoly {
 
         Paint paint = new Paint();
         paint.setAntiAlias(true);
+        paint.setStrokeWidth(1);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         Bitmap lowPoly = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);

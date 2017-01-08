@@ -23,8 +23,15 @@ Two ways:
 	This will generate Delaunay Triangles from the given bitmap`s pixels. Then you can use these triangles to draw on canvas.
 
 ## Shot
+<img src="./screenshots/source.jpg" width="200">
+<img src="./screenshots/convert.jpg" width="200">
 
-<img src="./screenshots/sample.gif" width="360">
+<img src="./screenshots/sample.gif" width="300">
+
+## Thanks
+
+- The original idea from here `https://github.com/zzhoujay/LowPoly`
+- The original Delaunay algorithm implement from here `http://paulbourke.net/papers/triangulate/`
 
 ## Licence
 

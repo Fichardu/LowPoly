@@ -1,22 +1,37 @@
 package me.fichardu.sobel;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 
 import me.fichardu.lowpoly.LowPoly;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int REQ_CHOOSE_IMAGE = 1;
 
     private TextView pointText;
     private TextView accuracyText;
@@ -147,12 +162,13 @@ public class MainActivity extends AppCompatActivity {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         if (fill) {
+            paint.setStrokeWidth(1);
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
         } else {
             paint.setStyle(Paint.Style.STROKE);
         }
 
-        Bitmap lowPoly = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap lowPoly = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(lowPoly);
         canvas.drawColor(Color.WHITE);
         Path path = new Path();
@@ -179,5 +195,69 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return lowPoly;
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_choose:
+                chooseImage();
+                return true;
+            case R.id.menu_save:
+                try {
+                    saveImage();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQ_CHOOSE_IMAGE) {
+            Uri uri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                ImageView imageView = (ImageView) findViewById(R.id.sobel_image);
+                imageView.setImageBitmap(bitmap);
+                sourceBitmap = bitmap;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQ_CHOOSE_IMAGE);
+
+    }
+
+    private void saveImage() throws IOException {
+        ImageView imageView = (ImageView) findViewById(R.id.sobel_image);
+        Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        File filePath = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "lowpoly");
+        if (filePath.exists() || filePath.mkdirs()) {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.CHINA).format(new Date());
+            String imageFileName = "JPEG_" + timeStamp + "_";
+            File image = File.createTempFile(imageFileName, ".jpg", filePath);
+            image.createNewFile();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(image));
+        }
     }
 }

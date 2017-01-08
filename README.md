@@ -6,7 +6,7 @@ LowPoly on Android. Convert a picture into LowPoly style. It has two steps to fi
 
 ```
 dependencies {
-    compile 'me.fichardu.lowpoly:lowpoly:1.0.0'
+    compile 'me.fichardu.lowpoly:lowpoly:1.0.1'
 }
 ```
 
